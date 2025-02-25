@@ -1,0 +1,22 @@
+name: API Tests
+ 
+on: [push, pull_request]
+ 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+ 
+      - name: Install Node.js (for Newman)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # You can specify a different Node.js version if needed
+ 
+      - name: Install Newman
+        run: npm install -g newman
+ 
+      - name: Run API Tests
+        run: newman run Simform_gorest_API_collection.json -e Simform_gorest_environment.json 
