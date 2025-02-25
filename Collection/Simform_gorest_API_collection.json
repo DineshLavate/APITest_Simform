@@ -1,0 +1,598 @@
+{
+	"info": {
+		"_postman_id": "dbc5fa06-b061-47e9-b86f-d423a463cfc7",
+		"name": "GoRest API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41516415"
+	},
+	"item": [
+		{
+			"name": "/public/v2/users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if status code is 200",
+							"pm.test(\"Status Code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Ensure response time is within acceptable limits",
+							"pm.test(\"Response time is within 1s\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"// Validate response is an array",
+							"pm.test(\"Response is an array\", function () {",
+							"    let jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"});",
+							"",
+							"// Fetch response data",
+							"let jsonData = pm.response.json();",
+							"",
+							"// Handle case where response is an empty array",
+							"pm.test(\"Response should not be empty\", function () {",
+							"    pm.expect(jsonData.length, \"No users found\").to.be.at.least(1);",
+							"});",
+							"",
+							"// If empty, log a warning but do not fail tests",
+							"if (jsonData.length === 0) {",
+							"    console.warn(\"⚠️ Warning: The response is an empty array. No users found.\");",
+							"} else {",
+							"    // Verify that each user contains required fields",
+							"    pm.test(\"Each user has necessary fields\", function () {",
+							"        jsonData.forEach(user => {",
+							"            pm.expect(user).to.have.property(\"id\").that.is.a(\"number\");",
+							"            pm.expect(user).to.have.property(\"name\").that.is.a(\"string\").and.not.empty;",
+							"            pm.expect(user).to.have.property(\"email\").that.is.a(\"string\").and.not.empty;",
+							"            pm.expect(user).to.have.property(\"gender\").that.is.a(\"string\").and.match(/^(male|female)$/);",
+							"            pm.expect(user).to.have.property(\"status\").that.is.a(\"string\").and.match(/^(active|inactive)$/);",
+							"        });",
+							"    });",
+							"",
+							"    // Ensure user ID is valid and not zero",
+							"    pm.test(\"All users have valid user_id\", function () {",
+							"        jsonData.forEach(user => {",
+							"            pm.expect(user.id).to.be.a(\"number\").and.above(0);",
+							"        });",
+							"    });",
+							"",
+							"    //  Check that each email is a valid format",
+							"    pm.test(\"Each user has a valid email format\", function () {",
+							"        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;",
+							"        jsonData.forEach(user => {",
+							"            pm.expect(user.email).to.match(emailRegex, `Invalid email found: ${user.email}`);",
+							"        });",
+							"    });",
+							"",
+							"    //  Ensure names have a minimum length",
+							"    pm.test(\"Name should have a minimum length\", function () {",
+							"        jsonData.forEach(user => {",
+							"            pm.expect(user.name.length).to.be.at.least(3, \"Name should have at least 3 characters\");",
+							"        });",
+							"    });",
+							"",
+							"    // Ensure all user IDs are unique",
+							"    pm.test(\"User IDs should be unique\", function () {",
+							"        let userIds = jsonData.map(user => user.id);",
+							"        let uniqueUserIds = new Set(userIds);",
+							"        pm.expect(uniqueUserIds.size).to.equal(userIds.length, \"Duplicate user IDs found\");",
+							"    });",
+							"",
+							"    // Check that the API does not return duplicate email addresses",
+							"    pm.test(\"Email addresses are unique\", function () {",
+							"        let emails = jsonData.map(user => user.email.toLowerCase());",
+							"        let uniqueEmails = new Set(emails);",
+							"        pm.expect(uniqueEmails.size).to.equal(emails.length, \"Duplicate email addresses found\");",
+							"    });",
+							"",
+							"    //  Ensure response does not contain null values",
+							"    pm.test(\"Response does not contain null values\", function () {",
+							"        jsonData.forEach(user => {",
+							"            pm.expect(user.id).to.not.be.null;",
+							"            pm.expect(user.name).to.not.be.null;",
+							"            pm.expect(user.email).to.not.be.null;",
+							"            pm.expect(user.gender).to.not.be.null;",
+							"            pm.expect(user.status).to.not.be.null;",
+							"        });",
+							"    });",
+							"",
+							"    //  Store the first user ID in an environment variable (for future requests)",
+							"    let userId = jsonData[0].id;",
+							"    pm.environment.set(\"user_id\", userId);",
+							"    console.log(\" User ID saved:\", userId);",
+							"}",
+							"",
+							"//  Verify response headers",
+							"pm.test(\"Response has correct Content-Type\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/public/v2/users POST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"Tenali Ramakrishna\", \"gender\":\"male\", \"email\":\"tenali.ramakrishna@15ce.com\", \"status\":\"active\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/public/v2/posts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//  Check if status code is 200",
+							"pm.test(\"Status Code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//  Ensure response time is within acceptable limits",
+							"pm.test(\"Response time is below 1s\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"//  Validate response is an array",
+							"pm.test(\"Response is an array\", function () {",
+							"    let jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"});",
+							"",
+							"// Fetch response data",
+							"let jsonData = pm.response.json();",
+							"",
+							"// Handle case where response is an empty array",
+							"pm.test(\"Response should not be empty\", function () {",
+							"    pm.expect(jsonData.length, \"No posts found\").to.be.at.least(1);",
+							"});",
+							"",
+							"// If empty, log a warning but do not fail tests",
+							"if (jsonData.length === 0) {",
+							"    console.warn(\"Warning: The response is an empty array. No posts found.\");",
+							"} else {",
+							"    // Verify that each post contains necessary fields",
+							"    pm.test(\"Each post contains necessary fields\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post).to.have.property(\"id\").that.is.a(\"number\");",
+							"            pm.expect(post).to.have.property(\"user_id\").that.is.a(\"number\");",
+							"            pm.expect(post).to.have.property(\"title\").that.is.a(\"string\").and.not.empty;",
+							"            pm.expect(post).to.have.property(\"body\").that.is.a(\"string\").and.not.empty;",
+							"        });",
+							"    });",
+							"",
+							"    // Ensure user_id is valid and not zero",
+							"    pm.test(\"All posts have valid user_id\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post.user_id).to.be.a(\"number\").and.above(0);",
+							"        });",
+							"    });",
+							"",
+							"    //  Check that each title has a reasonable length",
+							"    pm.test(\"Title should have a minimum length\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post.title.length).to.be.at.least(3, \"Title should have at least 3 characters\");",
+							"        });",
+							"    });",
+							"",
+							"    //  Ensure all posts have unique IDs",
+							"    pm.test(\"Post IDs should be unique\", function () {",
+							"        let postIds = jsonData.map(post => post.id);",
+							"        let uniquePostIds = new Set(postIds);",
+							"        pm.expect(uniquePostIds.size).to.equal(postIds.length, \"Duplicate post IDs found\");",
+							"    });",
+							"",
+							"    // Check that body has meaningful content (more than just whitespace)",
+							"    pm.test(\"Body should not be empty or just spaces\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post.body.trim().length).to.be.above(0, \"Body should not be empty\");",
+							"        });",
+							"    });",
+							"",
+							"    //  Store the first post ID in an environment variable (for future requests)",
+							"    let postId = jsonData[0].id;",
+							"    pm.environment.set(\"post_id\", postId);",
+							"    console.log(\"Post ID saved:\", postId);",
+							"",
+							"    // Ensure response does not contain null values",
+							"    pm.test(\"Response does not contain null values\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post.id).to.not.be.null;",
+							"            pm.expect(post.user_id).to.not.be.null;",
+							"            pm.expect(post.title).to.not.be.null;",
+							"            pm.expect(post.body).to.not.be.null;",
+							"        });",
+							"    });",
+							"",
+							"    // Verify no duplicate titles exist (assuming titles should be unique)",
+							"    pm.test(\"Post titles are unique\", function () {",
+							"        let titles = jsonData.map(post => post.title);",
+							"        let uniqueTitles = new Set(titles);",
+							"        pm.expect(uniqueTitles.size).to.equal(titles.length, \"Duplicate titles found\");",
+							"    });",
+							"",
+							"    // Ensure response contains at least one post from a specific user_id (if applicable)",
+							"    pm.test(\"At least one post from a valid user exists\", function () {",
+							"        let userPosts = jsonData.filter(post => post.user_id > 0);",
+							"        pm.expect(userPosts.length).to.be.at.least(1, \"No posts found with valid user_id\");",
+							"    });",
+							"}",
+							"",
+							"// Verify response headers",
+							"pm.test(\"Response has correct Content-Type\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base_url}}/posts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/public/v2/users/7373665/posts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if status code is 200",
+							"pm.test(\"Status Code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Ensure response time is within acceptable limits",
+							"pm.test(\"Response time is below 1s\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"// Validate that response is an array",
+							"pm.test(\"Response is an array\", function () {",
+							"    let jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"});",
+							"",
+							"// Check if response is an empty array",
+							"pm.test(\"Response should not be empty\", function () {",
+							"    let jsonData = pm.response.json();",
+							"    pm.expect(jsonData.length, \"No posts found for this user\").to.be.at.least(1);",
+							"});",
+							"",
+							"// Handling if response is empty",
+							"let jsonData = pm.response.json();",
+							"if (jsonData.length === 0) {",
+							"    console.warn(\"⚠️ Warning: The response is an empty array. No posts found for this user.\");",
+							"} else {",
+							"    // If posts exist, validate post structure",
+							"    pm.test(\"Each post contains necessary fields\", function () {",
+							"        jsonData.forEach(post => {",
+							"            pm.expect(post).to.have.property(\"id\").that.is.a(\"number\");",
+							"            pm.expect(post).to.have.property(\"user_id\", 7373665);",
+							"            pm.expect(post).to.have.property(\"title\").that.is.a(\"string\").and.not.empty;",
+							"            pm.expect(post).to.have.property(\"body\").that.is.a(\"string\").and.not.empty;",
+							"        });",
+							"    });",
+							"",
+							"    // Store the first post ID in an environment variable (for future requests)",
+							"    let postId = jsonData[0].id;",
+							"    pm.environment.set(\"post_id\", postId);",
+							"    console.log(\"Post ID saved:\", postId);",
+							"}",
+							"",
+							"",
+							"// Verify response headers contain expected content type",
+							"pm.test(\"Response has correct Content-Type\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							"",
+							"// Validate that post IDs are unique (only if data exists)",
+							"if (jsonData.length > 0) {",
+							"    pm.test(\"Post IDs are unique\", function () {",
+							"        let postIds = jsonData.map(post => post.id);",
+							"        let uniquePostIds = new Set(postIds);",
+							"        pm.expect(uniquePostIds.size).to.equal(postIds.length);",
+							"    });",
+							"}",
+							"",
+							"// Check that the response does not contain unexpected fields",
+							"if (jsonData.length > 0) {",
+							"    pm.test(\"Response does not contain unexpected fields\", function () {",
+							"        jsonData.forEach(post => {",
+							"            const allowedFields = [\"id\", \"user_id\", \"title\", \"body\"];",
+							"            Object.keys(post).forEach(key => {",
+							"                pm.expect(allowedFields).to.include(key);",
+							"            });",
+							"        });",
+							"    });",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/users/7373665/posts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"7373665",
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/public/v2/todos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if status code is 200",
+							"pm.test(\"Status Code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Ensure response time is within acceptable limits",
+							"pm.test(\"Response time is below 1s\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"// Validate response is an array",
+							"pm.test(\"Response is an array\", function () {",
+							"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+							"});",
+							"",
+							"// Fetch response data",
+							"let jsonData = pm.response.json();",
+							"",
+							"// Handle case where response is an empty array",
+							"pm.test(\"Response should not be empty\", function () {",
+							"    pm.expect(jsonData.length, \"No todos found\").to.be.at.least(1);",
+							"});",
+							"",
+							"// If empty, log a warning but do not fail tests",
+							"if (jsonData.length === 0) {",
+							"    console.warn(\"⚠️ Warning: The response is an empty array. No todos found.\");",
+							"} else {",
+							"    //  Validate todo structure",
+							"    pm.test(\"Each todo contains necessary fields\", function () {",
+							"        jsonData.forEach(todo => {",
+							"            pm.expect(todo).to.have.property(\"id\").that.is.a(\"number\");",
+							"            pm.expect(todo).to.have.property(\"user_id\").that.is.a(\"number\");",
+							"            pm.expect(todo).to.have.property(\"title\").that.is.a(\"string\").and.not.empty;",
+							"            pm.expect(todo).to.have.property(\"status\").that.is.a(\"string\");",
+							"        });",
+							"    });",
+							"",
+							"    //  Check that all todos belong to valid users",
+							"    pm.test(\"All todos have valid user_id\", function () {",
+							"        jsonData.forEach(todo => {",
+							"            pm.expect(todo.user_id).to.be.a(\"number\").and.above(0);",
+							"        });",
+							"    });",
+							"",
+							"    // Validate that status is either \"pending\" or \"completed\"",
+							"    pm.test(\"Todo status should be 'pending' or 'completed'\", function () {",
+							"        jsonData.forEach(todo => {",
+							"            pm.expect([\"pending\", \"completed\"]).to.include(todo.status);",
+							"        });",
+							"    });",
+							"",
+							"    //  Store the first todo ID in an environment variable for future use",
+							"    let todoId = jsonData[0].id;",
+							"    pm.environment.set(\"todo_id\", todoId);",
+							"    console.log(\"Todo ID saved:\", todoId);",
+							"",
+							"    //  Verify all todo IDs are unique",
+							"    pm.test(\"Todo IDs are unique\", function () {",
+							"        let todoIds = jsonData.map(todo => todo.id);",
+							"        let uniqueTodoIds = new Set(todoIds);",
+							"        pm.expect(uniqueTodoIds.size).to.equal(todoIds.length);",
+							"    });",
+							"",
+							"    //  Ensure no duplicate titles exist (assuming titles should be unique)",
+							"    pm.test(\"Todo titles are unique\", function () {",
+							"        let titles = jsonData.map(todo => todo.title);",
+							"        let uniqueTitles = new Set(titles);",
+							"        pm.expect(uniqueTitles.size).to.equal(titles.length, \"Duplicate titles found\");",
+							"    });",
+							"",
+							"    //  Check that the title has a minimum length (e.g., at least 3 characters)",
+							"    pm.test(\"Title has sufficient length\", function () {",
+							"        jsonData.forEach(todo => {",
+							"            pm.expect(todo.title.length).to.be.above(2, \"Title should have at least 3 characters\");",
+							"        });",
+							"    });",
+							"",
+							"    //  Validate content does not contain null values",
+							"    pm.test(\"Response does not contain null values\", function () {",
+							"        jsonData.forEach(todo => {",
+							"            pm.expect(todo.title).to.not.be.null;",
+							"            pm.expect(todo.status).to.not.be.null;",
+							"        });",
+							"    });",
+							"",
+							"    // Ensure there are at least X \"pending\" and Y \"completed\" todos",
+							"    pm.test(\"At least one 'pending' and one 'completed' todo exists\", function () {",
+							"        let pendingTodos = jsonData.filter(todo => todo.status === \"pending\");",
+							"        let completedTodos = jsonData.filter(todo => todo.status === \"completed\");",
+							"",
+							"        pm.expect(pendingTodos.length).to.be.at.least(1, \"No pending todos found\");",
+							"        pm.expect(completedTodos.length).to.be.at.least(1, \"No completed todos found\");",
+							"    });",
+							"}",
+							"",
+							"// Verify response headers",
+							"pm.test(\"Response has correct Content-Type\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/todos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"todos"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "your_api_token_here"
+		}
+	]
+}

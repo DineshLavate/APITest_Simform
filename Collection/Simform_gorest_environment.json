@@ -1,0 +1,39 @@
+{
+	"id": "85cd283f-7e9d-4742-806e-b2eafde1fadd",
+	"name": "goForest",
+	"values": [
+		{
+			"key": "token",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "post_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "todo_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "base_url",
+			"value": "https://gorest.co.in/public/v2",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-02-25T13:34:24.041Z",
+	"_postman_exported_using": "Postman/11.33.5"
+}
