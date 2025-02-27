@@ -19,4 +19,10 @@ jobs:
         run: npm install -g newman
  
       - name: Run API Tests
-        run: newman run Simform_gorest_API_collection.json -e Simform_gorest_environment.json 
+        run: newman run Simform_gorest_API_collection.json -e Simform_gorest_environment.json -r cli,html --reporter-html-export report.html
+
+      - name: upload Html Report
+        uses: actions/upload-artifacts@v3
+        with:
+          name: API-test-result
+          path: report.html
