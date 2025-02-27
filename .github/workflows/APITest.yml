@@ -22,7 +22,7 @@ jobs:
         run: newman run Simform_gorest_API_collection.json -e Simform_gorest_environment.json -r cli,html --reporter-html-export report.html
 
       - name: upload Html Report
-        uses: actions/upload-artifacts@v3
+        uses: actions/upload-artifact@v3
         with:
           name: API-test-report
           path: report.html
