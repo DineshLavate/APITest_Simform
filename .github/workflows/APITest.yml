@@ -7,8 +7,9 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-      - uses: actions/checkout@v4
+      
       - name : Create dir
+      - uses: actions/checkout@v4
          run:|
             mkdir SampleArtifact
             
@@ -16,9 +17,9 @@ jobs:
         uses: actions/checkout@v4
  
       - name: Install Node.js (for Newman)
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v4
         with:
-          node-version: '16'  # You can specify a different Node.js version if needed
+          node-version: '16.x'  # You can specify a different Node.js version if needed
  
       - name: Install Newman
         run: npm install -g newman
