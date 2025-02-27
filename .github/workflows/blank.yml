@@ -23,8 +23,7 @@ jobs:
           npm install -g newman newman-reporter-htmlextra
 
       - name: Run API Tests
-        run: |
-          newman run "Collection/Simform_gorest_API_collection.json" -e "Collection/Simform_gorest_environment.json" -r htmlextra --reporter-htmlextra-export SampleArtifact/report.html
+        run: newman run "Collection/Simform_gorest_API_collection.json" -e "Collection/Simform_gorest_environment.json" -r htmlextra --reporter-htmlextra-export SampleArtifact/report.html
         continue-on-error: true  # Optional: Prevents stopping the workflow on test failures
 
       - name: Upload HTML Report
