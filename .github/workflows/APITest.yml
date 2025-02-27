@@ -24,5 +24,5 @@ jobs:
       - name: upload Html Report
         uses: actions/upload-artifacts@v3
         with:
-          name: API-test-result
+          name: API-test-report
           path: report.html
