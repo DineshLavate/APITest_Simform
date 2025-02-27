@@ -21,6 +21,8 @@ jobs:
       - name: Install Newman and Reporters
         run: |
           npm install -g newman newman-reporter-htmlextra
+      - name: Verify Collection & Environment Files
+        run: ls -l Collection/
 
       - name: Run API Tests
         run: newman run "Collection/Simform_gorest_API_collection.json" -e "Collection/Simform_gorest_environment.json" -r htmlextra --reporter-htmlextra-export SampleArtifact/report.html
